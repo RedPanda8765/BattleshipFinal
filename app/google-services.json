@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "37982352964",
+    "project_id": "game-database-5c419",
+    "storage_bucket": "game-database-5c419.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:37982352964:android:903cc2464a24b02c70ee11",
+        "android_client_info": {
+          "package_name": "com.ijjy.battleshipgame"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCR0OupVGD0Eab2w8UqsnH54OpIoXXNX9o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

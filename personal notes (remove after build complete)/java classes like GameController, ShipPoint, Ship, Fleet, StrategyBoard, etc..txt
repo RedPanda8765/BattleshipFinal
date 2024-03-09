@@ -1,0 +1,287 @@
+public class GameController{
+	private UserPlayer user;
+	private AIOpponent aiOpp;
+	private humanOpponent humOpp;
+	private String winner;
+	private Boolean gameOver;
+
+	public GameController()
+	{
+		user = new UserPlayer(usernameSS, ...);
+	}
+
+	public void startGame()
+	{
+
+	}
+
+	public void switchTurn()
+	{
+
+	}
+
+	public String getWinner()
+	{
+
+	}
+
+	public Boolean rematch()
+	{
+
+	}
+
+} //end of GameController class
+
+//-------------------------------------------------------------------------------------------------------------------
+
+public class ShipPoint{
+	public int x;
+	public int y;
+	public Boolean hitStatus;
+
+	public ShipPoint()
+	{
+		this.x = 0;
+		this.y = 0;
+		this.hitStatus = false;
+	}
+
+	public ShipPoint(int x, int y, Boolean status)
+	{
+		this.x = x;
+		this.y = y;
+		this.hitStatus = status;
+	}
+
+} //end of ShipPoint class
+
+//-------------------------------------------------------------------------------------------------------------------
+
+public class Ship{
+	private int dimX;
+	private int dimY;
+	private ShipPoint[] location;
+	private Boolean shipStatus;
+	private String shipName;
+	private int hitCapacity;
+	private int currentHitCount;
+
+	public Ship()
+	{
+		this.dimX = 0;
+		this.dimY = 0;
+		for (ShipPoint point : location)
+			point = new ShipPoint();
+		this.shipStatus = true;
+		this.shipName = null;
+		this.hitCapacity = 0;
+		this.currentHitCount = 0;
+	}
+
+	public Ship(int dimX, int dimY, String shipName)
+	{
+		this.dimX = dimX;
+		this.dimY = dimY;
+		for (ShipPoint point : location)
+			point = new ShipPoint();
+		this.shipStatus = true;
+		this.shipName = shipName;
+		this.hitCapacity = dimX * dimY;
+		this.currentHitCount = 0;
+	}
+
+	public void setDimX(int x)
+	{
+		this.dimX = x;
+	}
+
+	public void setDimY(int y)
+	{
+		this.dimY = y;
+	}
+
+	public int getDimX()
+	{
+		return this.dimX;
+	}
+
+	public int getDimY()
+	{
+		return this.dimY;
+	}
+
+	public void setLocation(ShipPoint[] points)
+	{
+ 		int i = 0;
+		for(ShipPoint point : points)
+		{
+			this.location[i] = point;
+			i++;
+		}
+	}
+
+	public ShipPoint[] getLocation()
+	{
+		return this.location;
+	}
+
+	public Boolean getStatus()
+	{
+		return this.shipStatus;
+	}
+
+	public void setHitCapacity(int max)
+	{
+		this.hitCapacity = max;
+	}
+
+	public int getCurrentHitCount()
+	{
+		return this.currentHitCount;
+	}
+
+	public double getPrcntDmge()
+	{
+		double percentDamage = (double)this.currentHitCount/this.hitCapacity;
+		return percentDamage;
+	}
+
+	public void toString()
+	{
+		String result = this.shipName + "\'s Info:-------\nDimenstions: " + Integer.toString(this.dimX) + "X" + Integer.toString(this.dimY) + "\nLocation:";
+		
+		for(int i = 0; i < this.dimX*this.dimY; i++)
+		{
+			result += " (" + Integer.toString(this.location[i].x) + ", " + Integer.toString(this.location[i].y) + ")";
+		}
+
+		if(shipStatus) result += " Ship Status: Active\n"
+		else result += " Ship Status: Sunk\n"
+
+		result += "Damage Capacity: " + this.hitCapacity + "\nCurrent Hits: " + this.currentHitCount;
+
+		return result;
+	}
+
+} //end of Ship class
+
+//-------------------------------------------------------------------------------------------------------------------
+
+public class Fleet{
+	private Ship[] ships;
+	private String[] shipNames;
+	private int[] shipDimens;
+	public Boolean fleetStatus;
+
+	public Fleet()
+	{
+		this.shipNames = {"Aircraft Carrier","Cruiser","Submarine","Corvette","Destroyer"};
+		this.shipDimens = {4,2,3,1,3,1,2,1,5,1};
+
+		int j = 0;
+		for(int i = 0; i < 5; i++) //for the 5 ships in the fleet
+		{
+			ship = new Ship(shipDimens[i],shipDimens[i++],shipNames[j]);
+			i++;
+			j++;
+		}
+		this.fleetStatus = true; //intially active
+	}
+
+	public Boolean checkStatus()
+	{
+		return this.fleetStatus;
+	}
+
+	public void updateStatus()
+	{
+		int count = 0; //counts number of sunk ships
+		for(int i = 0; i < 5; i++) //for all 5 ships in the fleet
+		{
+			if(!this.ships[i].getStatus) count++;
+		}
+		
+                //if all 5 ships are sunk (the entire fleet is down), set to false:
+		if(count == 5) this.fleetStatus = false; 
+	}
+
+	public Ship getShip(int index)
+	{
+		return this.ships[index]; //battleship 1 is at index 0, battleship 2 is at index 1, etc., 
+	}
+
+} //end of Fleet class
+
+
+//-------------------------------------------------------------------------------------------------------------------
+
+public class StrategyBoard{
+	private int[][] board;
+	private Fleet battleFleet;
+
+	public StrategyBoard()
+	{
+		initBoard();
+		createFleet();
+	}
+
+	public void initBoard() 
+	{
+		board = new int[10][10]; //creating 10x10 grid
+
+		//java automatically fills int arrays with 0s upon creation, 
+		//but just in case, doing it here again.
+		for(int i = 0; i < 10; i++)
+		{
+			for(int j = 0; j < 10; j++)
+				board[i][j] = 0;
+		}
+
+
+	}
+
+	public void creatFleet() 
+	{
+		this.battleFleet = new Fleet();
+	}
+
+	public Fleet getFleet()
+	{
+		return this.battleFleet;
+	}
+
+	public Boolean spotTaken(int x, int y) //for using before entering Rounds-stage
+	{ 
+		Boolean result = true;
+		if (this.board[x][y] != 0) result = false;
+		return result; 
+	}
+
+	public Boolean withinGrid(int x, int y) //for using before entering Rounds-stage
+	{ 
+		Boolean result = false;
+		if((x > 0) && (x < 10) && (y > 0) && (y < 10)) result = true;
+		return result;
+	}
+
+	public Boolean checkFleetPositionValidity() //for using before entering Rounds-stage
+	{ 
+		Boolean result = true; //set to valid as default
+		for(int i = 0; i < 10; i++)
+		{
+			for(int j = 0; j < 10; j++) //for each point on the board in the fleet
+			{
+				if(this.board[i][j] == -1) //if there is a ship intersecting, the value of -1 is placed at that coordinate 
+				{
+					result = false;
+					break;
+				}
+			}
+			if(!result) break; //breaking from outer for loop to stop further checking if a value of -1 is found at least once.			
+		}
+		
+		return result;
+	}
+
+} //end of StrategyBoard class
+

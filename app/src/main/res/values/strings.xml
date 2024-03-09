@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Battleship Game</string>
+    <string name="Login">Login</string>
+    <string name="Email">Email</string>
+    <string name="Password">Password</string>
+    <string name="join_the_battle">Join the Battle</string>
+    <string name="Done">Done</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="already_have_an_account_login">Already have an account? Login.</string>
+    <string name="new_here_sign_up">New here? Sign up.</string>
+    <string name="logout">Logout</string>
+    <string name="XXXXX">xxxxx</string>
+    <string name="Username">Username</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="play">Play</string>
+    <string name="how">\?</string>
+    <string name="stats">stats</string>
+    <string name="how_to_play">How To Play</string>
+    <string name="strategy_board">Strategy Board</string>
+    <string name="attack_board">Attack Board</string>
+    <string name="you_are_given_two_boards">You and your opponent are given two boards. \nNeither of you can see eachother\'s boards.</string>
+    <string name="first_place_your_fleet">First, place your fleet on your Strategy Board.</string>
+    <string name="next_exchange_attacks">Next, exchange attacks with your opponent\nusing your Attack Board by selecting which\ngrid points you want to target.</string>
+    <string name="after_you_launch_an_attack">After you launch an attack, an X may appear on \nyour Attack Board. This means you hit an enemy \nship. If an O appears instead, it means you missed.</string>
+    <string name="your_goal">Your goal: locate and sink your opponent\'s entire \nfleet before they sink yours.</string>
+    <string name="home">Home</string>
+    <string name="go">GO</string>
+    <string name="choose_your_opponent">Choose Your Opponent</string>
+    <string name="human">Human</string>
+    <string name="ai">AI</string>
+    <string name="start_match">Start Match</string>
+    <string name="exit">Exit</string>
+    <string name="score">Score:</string>
+    <string name="xxxxxx">xxxxxx</string>
+</resources>

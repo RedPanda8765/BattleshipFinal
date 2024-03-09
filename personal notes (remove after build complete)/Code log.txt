@@ -1,0 +1,2888 @@
+Contents:
+	P1: Lines 2 - 680
+
+	P2: Lines 692 - 1400
+
+	P3: Lines 1422 - 1859
+
+	P4: Lines 1892 - ...
+
+***P1**Splash screen, Sign up, Login, and Logout are rudimentarily functional***** - Time: 2/6/2024, 2:40 pm
+Features:
+ - Email regex implemented for sign up
+ - One errror message shows when any text fields are left blank
+
+SplashScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.widget.ProgressBar;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class SplashScreen extends AppCompatActivity {
+    private int i = 0;
+    private Timer timer;
+    private ProgressBar loadingBar;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash_screen);
+
+        loadingBar = (ProgressBar) findViewById(R.id.loadingbar);
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(i<100){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                        }
+                    });
+                    loadingBar.setProgress(i);
+                    i++;
+                } else {
+                    timer.cancel();
+                    startActivity(new Intent(getApplicationContext(),SignUpScreen.class));
+                    finish();
+                    //after splash screen, the signup screen appears next.
+                }
+            }
+        }, 0, 30);
+
+    }
+}
+-----------------------------------------
+activity_splash_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SplashScreen"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            app:srcCompat="@drawable/splashlogo" />
+
+        <ProgressBar
+            android:id="@+id/loadingbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="50dp"
+            android:layout_marginBottom="50dp"
+            android:background="@color/white"
+            android:progressTint="@color/black"
+            android:max="100" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+-----------------------------------------
+
+SignUpScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+
+public class SignUpScreen extends AppCompatActivity {
+
+    TextInputLayout username_var, email_var, password_var;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference reference;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_sign_up_screen);
+
+        username_var = findViewById(R.id.username_text_field_design);
+        email_var = findViewById(R.id.email_text_field_design);
+        password_var = findViewById(R.id.password_text_field_design);
+
+    }
+
+    public void loginbuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),LoginScreen.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void signupbuttonclick(View view) {
+
+        String username_ = username_var.getEditText().getText().toString();
+        String email_ = email_var.getEditText().getText().toString();
+        String password_ = password_var.getEditText().getText().toString();
+
+        if(!username_.isEmpty()) {
+            username_var.setError(null);
+            username_var.setErrorEnabled(false);
+            if(!email_.isEmpty()) {
+                email_var.setError(null);
+                email_var.setErrorEnabled(false);
+                if(!password_.isEmpty()) {
+                    password_var.setError(null);
+                    password_var.setErrorEnabled(false);
+                    //email regex for RFC-5322 Validation
+                    if(email_.matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")){
+                        firebaseDatabase = FirebaseDatabase.getInstance();
+                        reference = firebaseDatabase.getReference("datauser");
+
+                        String username_s = username_var.getEditText().getText().toString();
+                        String email_s = email_var.getEditText().getText().toString();
+                        String password_s = password_var.getEditText().getText().toString();
+
+                        //TBA: - make sure username and email don't exist already (should be unique)
+
+                        StoringData storingData_s = new StoringData(username_s, email_s, password_s, 0);
+
+                        reference.child(username_s).setValue(storingData_s);
+
+                        StartScreen.userNameSS = username_s;
+
+                        Toast.makeText(getApplicationContext(), "**Account created**",Toast.LENGTH_SHORT).show();
+
+                        Intent intent = new Intent(getApplicationContext(), StartScreen.class);
+                        startActivity(intent);
+                        finish();
+
+
+                    }else {
+                        email_var.setError("Invalid Email");
+                    }
+                }else {
+                    password_var.setError("Please enter a password");
+                }
+            }else {
+                email_var.setError("Please enter an email");
+            }
+        }else {
+            username_var.setError("Please enter a username");
+        }
+
+    }
+}
+
+-----------------------------------------
+activity_sign_up_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SignUpScreen"
+    android:padding="20dp"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/join_the_battle"
+        android:textSize="50sp"
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        />
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_margin="10dp"
+        android:src="@drawable/battleship"
+        android:layout_gravity="center"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sign_up"
+        android:textSize="30sp"
+
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/white"
+            android:id="@+id/username_text_field_design"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:hint="@string/Username">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/white"
+            android:id="@+id/email_text_field_design"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:hint="@string/Email">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/white"
+            android:id="@+id/password_text_field_design"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:passwordToggleEnabled="true"
+            android:hint="@string/Password">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+
+    <Button
+        android:onClick="signupbuttonclick"
+        android:layout_width="185dp"
+        android:layout_height="48dp"
+        android:backgroundTint="#000000"
+        android:text="@string/Done"
+        android:layout_gravity="center_horizontal"
+        android:elevation="5dp"/>
+
+    <Button
+        android:onClick="loginbuttonclick"
+        android:layout_width="317dp"
+        android:layout_height="48dp"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/black"
+        android:textSize="11sp"
+        android:text="@string/already_have_an_account_login"
+        android:layout_gravity="center_horizontal"
+        android:elevation="5dp"/>
+
+
+</LinearLayout>
+-----------------------------------------
+
+LoginScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+public class LoginScreen extends AppCompatActivity {
+
+    Button signupbutton, loginbutton;
+    TextInputLayout username_var, password_var;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_login_screen);
+
+        signupbutton = findViewById(R.id.button_signup);
+        loginbutton = findViewById(R.id.button_done); //corresponds with "Done" button
+        username_var = findViewById(R.id.username_text_field_design);
+        password_var = findViewById(R.id.password_text_field_design);
+
+
+        loginbutton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                String username_ = username_var.getEditText().getText().toString();
+                String password_ = password_var.getEditText().getText().toString();
+
+                if(!username_.isEmpty()) {
+                    username_var.setError(null);
+                    username_var.setErrorEnabled(false);
+                    if(!password_.isEmpty()) {
+                        password_var.setError(null);
+                        password_var.setErrorEnabled(false);
+
+                        final String username_data = username_var.getEditText().getText().toString();
+                        final String password_data = password_var.getEditText().getText().toString();
+
+                        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                        DatabaseReference reference = firebaseDatabase.getReference("datauser");
+
+                        //first seeing if the username exists:
+                        Query check_username = reference.orderByChild("username").equalTo(username_data);
+
+                        check_username.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if(snapshot.exists()){
+                                    username_var.setError(null);
+                                    username_var.setErrorEnabled(false);
+                                    String passwordcheck = snapshot.child(username_data).child("password").getValue(String.class);
+                                    Integer score = snapshot.child(username_data).child("score").getValue(Integer.class);
+
+                                    //seeing if the password inputted matches the one in the database:
+                                    if(passwordcheck.equals(password_data)){
+                                        password_var.setError(null);
+                                        password_var.setErrorEnabled(false);
+                                        Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
+
+                                        StartScreen.userNameSS = username_data;
+
+                                        Intent intent = new Intent(getApplicationContext(), StartScreen.class);
+                                        startActivity(intent);
+                                        finish();
+                                    } else {
+                                        password_var.setError("Incorrect Password");
+                                    }
+                                } else {
+                                    username_var.setError("User does not exist");
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                //purposely nothing here
+                            }
+                        });
+
+
+
+                    }else {
+                        password_var.setError("Please enter password");
+                    }
+                }else {
+                    username_var.setError("Please enter username");
+                }
+
+            }
+        });
+
+        signupbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(),SignUpScreen.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+    }
+}
+-----------------------------------------
+activity_login_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginScreen"
+    android:padding="20dp"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/join_the_battle"
+        android:textSize="50sp"
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        />
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_margin="20dp"
+        android:src="@drawable/battleship"
+        android:layout_gravity="center"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Login"
+        android:textSize="30sp"
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/white"
+            android:id="@+id/username_text_field_design"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:hint="@string/Username">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/white"
+            android:id="@+id/password_text_field_design"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:passwordToggleEnabled="true"
+            android:hint="@string/Password">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+
+
+    <Button
+        android:id="@+id/button_done"
+        android:layout_width="185dp"
+        android:layout_height="48dp"
+        android:backgroundTint="#000000"
+        android:text="@string/Done"
+        android:layout_gravity="center_horizontal"
+        android:elevation="5dp"/>
+
+    <Button
+        android:id="@+id/button_signup"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/black"
+        android:textSize="11sp"
+        android:text="@string/new_here_sign_up"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:elevation="5dp"/>
+
+
+
+</LinearLayout>
+-----------------------------------------
+
+StartScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+public class StartScreen extends AppCompatActivity {
+
+    Button button;
+    TextView textView;
+    static String userNameSS; //static so it can be set in signup/login classes
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_start_screen);
+
+        button = (Button)findViewById(R.id.button_logout);
+        textView = (TextView)findViewById(R.id.user_id_main_screen);
+
+        //displaying username in TextView at top left
+        textView.setText(userNameSS);
+    }
+
+    public void logoutbuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),LoginScreen.class);
+        startActivity(intent);
+        finish();
+    }
+}
+-----------------------------------------
+activity_start_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".StartScreen">
+
+    <TextView
+        android:id="@+id/user_id_main_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/XXXXX"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        />
+
+    <Button
+        android:onClick="logoutbuttonclick"
+        android:id="@+id/button_logout"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:text="@string/logout"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:textSize="15sp" />
+
+
+</LinearLayout>
+-----------------------------------------
+
+Extra classes:
+StoringData.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import android.app.GameState;
+
+public class StoringData {
+
+    String username, email, password;
+    int score;
+
+    public StoringData() {
+    }
+
+    public StoringData(String username, String email, String password, int score) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.score = score;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+}
+-----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+***P2**Splash screen, Sign up, Login, and Logout are completely functional***** - Time: 2/7/2024, 10:50 am
+Added:
+ - Enabled checks for unique username and/or email when user attempts sign up.
+ - Eliminated trailing and leading whitespace from username and email.
+ - Enabled multiple errors to show simultaneously when >1 text field is left blank.
+ - Enabled scrolling for sign up screen since lowest button would become inaccessible when all three errors showed simultanously
+
+SplashScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.widget.ProgressBar;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class SplashScreen extends AppCompatActivity {
+    private int i = 0;
+    private Timer timer;
+    private ProgressBar loadingBar;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash_screen);
+
+        loadingBar = (ProgressBar) findViewById(R.id.loadingbar);
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(i<100){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                        }
+                    });
+                    loadingBar.setProgress(i);
+                    i++;
+                } else {
+                    timer.cancel();
+                    startActivity(new Intent(getApplicationContext(),SignUpScreen.class));
+                    finish();
+                    //after splash screen, the signup screen appears next.
+                }
+            }
+        }, 0, 30);
+
+    }
+}
+-----------------------------------------
+activity_splash_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SplashScreen"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            app:srcCompat="@drawable/splashlogo" />
+
+        <ProgressBar
+            android:id="@+id/loadingbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="50dp"
+            android:layout_marginBottom="50dp"
+            android:background="@color/white"
+            android:progressTint="@color/black"
+            android:max="100" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+-----------------------------------------
+
+SignUpScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+public class SignUpScreen extends AppCompatActivity {
+
+    TextInputLayout username_var, email_var, password_var;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference reference;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_sign_up_screen);
+
+        username_var = findViewById(R.id.username_text_field_design);
+        email_var = findViewById(R.id.email_text_field_design);
+        password_var = findViewById(R.id.password_text_field_design);
+
+    }
+
+    public void loginbuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),LoginScreen.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void signupbuttonclick(View view) {
+
+        String username_ = username_var.getEditText().getText().toString();
+        String email_ = email_var.getEditText().getText().toString();
+        String password_ = password_var.getEditText().getText().toString();
+
+        if(!username_.isEmpty()) {
+            username_var.setError(null);
+            username_var.setErrorEnabled(false);
+            if(!email_.isEmpty()) {
+                email_var.setError(null);
+                email_var.setErrorEnabled(false);
+                if(!password_.isEmpty()) {
+                    password_var.setError(null);
+                    password_var.setErrorEnabled(false);
+                    //email regex for RFC-5322 Validation
+                    if(email_.matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")){
+                        firebaseDatabase = FirebaseDatabase.getInstance();
+                        reference = firebaseDatabase.getReference("datauser");
+
+                        String username_s = username_var.getEditText().getText().toString().trim();
+                        String email_s = email_var.getEditText().getText().toString().trim();
+                        String password_s = password_var.getEditText().getText().toString();
+
+                        //.trim() method (used above) removes trailing and leading whitespace
+
+                        //Making sure username and email are unique (don't exist already)
+                        //first: see if username is taken:
+                        Query check_username = reference.orderByChild("username").equalTo(username_s);
+
+                        check_username.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if(snapshot.exists()){
+                                    username_var.setError("Username already exists");
+
+                                } else {
+                                    username_var.setError(null);
+                                    username_var.setErrorEnabled(false);
+
+                                    //second: see if email is taken:
+                                    Query check_email = reference.orderByChild("email").equalTo(email_s);
+                                    check_email.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            if(snapshot.exists()){
+                                                email_var.setError("Email already exists");
+
+                                            } else {
+                                                email_var.setError(null);
+                                                email_var.setErrorEnabled(false);
+
+                                                StoringData storingData_s = new StoringData(username_s, email_s, password_s, 0);
+
+                                                reference.child(username_s).setValue(storingData_s);
+
+                                                StartScreen.userNameSS = username_s;
+
+                                                Toast.makeText(getApplicationContext(), "Account created",Toast.LENGTH_SHORT).show();
+
+                                                Intent intent = new Intent(getApplicationContext(), StartScreen.class);
+                                                startActivity(intent);
+                                                finish();
+
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+                                            //purposely nothing here
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                //purposely nothing here
+                            }
+                        });
+
+
+                    }else {
+                        email_var.setError("Invalid Email");
+                    }
+                }else {
+                    password_var.setError("Please enter a password");
+                }
+            }else {
+                email_var.setError("Please enter an email");
+                if(password_.isEmpty()) password_var.setError("Please enter a password");
+                else{
+                    password_var.setError(null);
+                    password_var.setErrorEnabled(false);
+                }
+            }
+        }else {
+            username_var.setError("Please enter a username");
+            if(email_.isEmpty()) email_var.setError("Please enter an email");
+            else{
+                email_var.setError(null);
+                email_var.setErrorEnabled(false);
+            }
+            if(password_.isEmpty()) password_var.setError("Please enter a password");
+            else{
+                password_var.setError(null);
+                password_var.setErrorEnabled(false);
+            }
+        }
+
+    }
+}
+-----------------------------------------
+activity_sign_up_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SignUpScreen"
+    android:padding="20dp"
+    android:orientation="vertical"
+    android:background="@color/white">
+    
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/join_the_battle"
+                android:textSize="50sp"
+                android:textColor="@color/black"
+                android:layout_gravity="center"
+                />
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_margin="10dp"
+                android:src="@drawable/battleship"
+                android:layout_gravity="center"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sign_up"
+                android:textSize="30sp"
+
+                android:textColor="@color/black"
+                android:layout_gravity="center"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:boxBackgroundColor="@color/white"
+                    android:id="@+id/username_text_field_design"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="@string/Username">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:boxBackgroundColor="@color/white"
+                    android:id="@+id/email_text_field_design"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="@string/Email">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textEmailAddress"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:boxBackgroundColor="@color/white"
+                    android:id="@+id/password_text_field_design"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:passwordToggleEnabled="true"
+                    android:hint="@string/Password">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+
+            <Button
+                android:onClick="signupbuttonclick"
+                android:layout_width="185dp"
+                android:layout_height="48dp"
+                android:backgroundTint="#000000"
+                android:text="@string/Done"
+                android:layout_gravity="center_horizontal"
+                android:elevation="5dp"/>
+
+            <Button
+                android:onClick="loginbuttonclick"
+                android:layout_width="317dp"
+                android:layout_height="48dp"
+                android:backgroundTint="@color/white"
+                android:textColor="@color/black"
+                android:textSize="11sp"
+                android:text="@string/already_have_an_account_login"
+                android:layout_gravity="center_horizontal"
+                android:elevation="5dp"/>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
+-----------------------------------------
+
+LoginScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+public class LoginScreen extends AppCompatActivity {
+
+    Button signupbutton, loginbutton;
+    TextInputLayout username_var, password_var;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_login_screen);
+
+        signupbutton = findViewById(R.id.button_signup);
+        loginbutton = findViewById(R.id.button_done); //corresponds with "Done" button
+        username_var = findViewById(R.id.username_text_field_design);
+        password_var = findViewById(R.id.password_text_field_design);
+
+
+        loginbutton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                String username_ = username_var.getEditText().getText().toString();
+                String password_ = password_var.getEditText().getText().toString();
+
+                if(!username_.isEmpty()) {
+                    username_var.setError(null);
+                    username_var.setErrorEnabled(false);
+                    if(!password_.isEmpty()) {
+                        password_var.setError(null);
+                        password_var.setErrorEnabled(false);
+
+                        final String username_data = username_var.getEditText().getText().toString();
+                        final String password_data = password_var.getEditText().getText().toString();
+
+                        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                        DatabaseReference reference = firebaseDatabase.getReference("datauser");
+
+                        //first seeing if the username exists:
+                        Query check_username = reference.orderByChild("username").equalTo(username_data);
+
+                        check_username.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if(snapshot.exists()){
+                                    username_var.setError(null);
+                                    username_var.setErrorEnabled(false);
+                                    String passwordcheck = snapshot.child(username_data).child("password").getValue(String.class);
+                                    Integer score = snapshot.child(username_data).child("score").getValue(Integer.class);
+
+                                    //seeing if the password inputted matches the one in the database:
+                                    if(passwordcheck.equals(password_data)){
+                                        password_var.setError(null);
+                                        password_var.setErrorEnabled(false);
+                                        Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
+
+                                        StartScreen.userNameSS = username_data;
+
+                                        Intent intent = new Intent(getApplicationContext(), StartScreen.class);
+                                        startActivity(intent);
+                                        finish();
+                                    } else {
+                                        password_var.setError("Incorrect Password");
+                                    }
+                                } else {
+                                    username_var.setError("User does not exist");
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                //purposely nothing here
+                            }
+                        });
+
+
+
+                    }else {
+                        password_var.setError("Please enter password");
+                    }
+                }else {
+                    username_var.setError("Please enter username");
+                    if(password_.isEmpty()) password_var.setError("Please enter a password");
+                    else{
+                        password_var.setError(null);
+                        password_var.setErrorEnabled(false);
+                    }
+                }
+
+            }
+        });
+
+        signupbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(),SignUpScreen.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+    }
+}
+-----------------------------------------
+activity_login_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginScreen"
+    android:padding="20dp"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/join_the_battle"
+        android:textSize="50sp"
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        />
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_margin="20dp"
+        android:src="@drawable/battleship"
+        android:layout_gravity="center"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Login"
+        android:textSize="30sp"
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/white"
+            android:id="@+id/username_text_field_design"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:hint="@string/Username">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/white"
+            android:id="@+id/password_text_field_design"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:passwordToggleEnabled="true"
+            android:hint="@string/Password">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+
+
+    <Button
+        android:id="@+id/button_done"
+        android:layout_width="185dp"
+        android:layout_height="48dp"
+        android:backgroundTint="#000000"
+        android:text="@string/Done"
+        android:layout_gravity="center_horizontal"
+        android:elevation="5dp"/>
+
+    <Button
+        android:id="@+id/button_signup"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/black"
+        android:textSize="11sp"
+        android:text="@string/new_here_sign_up"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:elevation="5dp"/>
+
+
+
+</LinearLayout>
+-----------------------------------------
+
+StartScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+public class StartScreen extends AppCompatActivity {
+
+    Button button;
+    TextView textView;
+    static String userNameSS; //static so it can be set in signup/login classes
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_start_screen);
+
+        button = (Button)findViewById(R.id.button_logout);
+        textView = (TextView)findViewById(R.id.user_id_main_screen);
+
+        //displaying username in TextView at top left
+        textView.setText(userNameSS);
+    }
+
+    public void logoutbuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),LoginScreen.class);
+        startActivity(intent);
+        finish();
+    }
+}
+-----------------------------------------
+activity_start_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".StartScreen">
+
+    <TextView
+        android:id="@+id/user_id_main_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/XXXXX"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        />
+
+    <Button
+        android:onClick="logoutbuttonclick"
+        android:id="@+id/button_logout"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:text="@string/logout"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:textSize="15sp" />
+
+
+</LinearLayout>
+-----------------------------------------
+
+Extra classes:
+StoringData.java-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+***P3**Splash screen, Sign up, Login, Logout, Tutorial, and Home Screen are rudimentally functional***** - Time: 2/7/2024, 4:30 pm
+Added:
+ - Added all buttons to Home screen (except Sound button)
+ - Adding functionality for "?" button that takes user from Home screen to Tutorial screen.
+ - Created Tutorial screen, with a functional Home button 
+ - Created ChooseOpponent screen and Stats screen (no functionality)
+
+SplashScreen.java-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+activity_splash_screen.xml-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+
+SignUpScreen.java-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+activity_sign_up_screen.xml-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+
+LoginScreen.java-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+activity_login_screen.xml-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+
+StartScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+public class StartScreen extends AppCompatActivity {
+
+    Button button;
+    TextView textView;
+    static String userNameSS; //static so it can be set in signup/login classes
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_start_screen);
+
+        button = (Button)findViewById(R.id.button_logout);
+        textView = (TextView)findViewById(R.id.user_id_main_screen);
+
+        //displaying username in TextView at top left
+        textView.setText(userNameSS);
+    }
+
+    public void logoutbuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),LoginScreen.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void howbuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),HowToPlayScreen.class);
+        startActivity(intent);
+    }
+}
+-----------------------------------------
+activity_start_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="20dp"
+    tools:context=".StartScreen">
+
+    <TextView
+        android:id="@+id/user_id_main_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/XXXXX"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        />
+
+    <Button
+        android:id="@+id/button_stats"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="25dp"
+        android:text="@string/stats"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:gravity="center"
+        android:orientation="vertical"
+
+        >
+
+        <ImageView
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_margin="20dp"
+            android:src="@drawable/dreadnought"/>
+
+        <Button
+            android:id="@+id/button_play"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="5dp"
+            android:backgroundTint="@color/black"
+            android:text="@string/play"
+            android:textColor="@color/white"
+            android:textSize="15sp" />
+        <Button
+            android:onClick="howbuttonclick"
+            android:id="@+id/button_howto"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="5dp"
+            android:backgroundTint="@color/black"
+            android:text="@string/how"
+            android:textColor="@color/white"
+            android:textSize="25sp" />
+
+
+    </LinearLayout>
+
+    <Button
+        android:onClick="logoutbuttonclick"
+        android:id="@+id/button_logout"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="25dp"
+        android:text="@string/logout"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:textSize="15sp" />
+
+</LinearLayout>
+-----------------------------------------
+
+Extra classes:
+StoringData.java-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+
+HowToPlayScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+
+public class HowToPlayScreen extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_how_to_play_screen);
+    }
+
+    public void homebuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),StartScreen.class);
+        startActivity(intent);
+        finish();
+    }
+}
+-----------------------------------------
+activity_how_to_play_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="20dp"
+    android:paddingRight="20dp"
+    android:paddingLeft="20dp"
+    tools:context=".HowToPlayScreen">
+
+    <Button
+        android:onClick="homebuttonclick"
+        android:id="@+id/button_home"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:text="@string/home"
+        />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:textSize="60sp"
+                android:text="@string/how_to_play"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:fontFamily="sans-serif-condensed"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/you_are_given_two_boards"
+                android:textColor="@color/black"
+                android:layout_marginBottom="10dp"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/stratboard"/>
+
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/attkboard"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="75dp"
+                    android:textColor="@color/black"
+                    android:text="@string/strategy_board"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:text="@string/attack_board"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/first_place_your_fleet"
+                android:textColor="@color/black" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="190dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/fleet"/>
+
+                <ImageView
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:src="@drawable/stratboardwships"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/next_exchange_attacks"
+                android:textColor="@color/black"
+                android:textAlignment="center"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/attackchosen"/>
+
+                <ImageView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:src="@drawable/launchingmissile"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/after_you_launch_an_attack"
+                android:textColor="@color/black"
+                android:textAlignment="center"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/attackhit"/>
+
+                <ImageView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:src="@drawable/attackmiss"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/your_goal"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/conqueror"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
+-----------------------------------------
+
+ChooseOpponentScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+
+public class ChooseOpponentScreen extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_choose_opponent_screen);
+    }
+}
+-----------------------------------------
+activity_choose_opponent_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ChooseOpponentScreen">
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+-----------------------------------------
+
+StatsScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+
+public class StatsScreen extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_stats_screen);
+    }
+}
+-----------------------------------------
+activity_stats_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StatsScreen">
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+-----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+***P4**Splash screen, Sign up, Login, Logout, Tutorial, Home Screen, and Choose Opponent Screen are rudimentally functional***** - Time: 2/11/2024, 9:30 pm
+Added:
+ - Change: Login page shows after Splash Screen, not Sign Up Page 
+ - Created basic layout of Stats Screen (home button w/ functionality and textfield for latest score)
+ - Added functionality to Play button on Home Screen (takes user to ChooseOpponent Screen)
+ - Created basic layout of ChooseOpponent Screen and some functionality to images (images change upon click)
+ - Added functionality to Home and Go buttons on ChooseOpponent Screen (Go button takes user to their Strategy Board, only if an opponent is selected)  
+
+SplashScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.widget.ProgressBar;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class SplashScreen extends AppCompatActivity {
+    private int i = 0;
+    private Timer timer;
+    private ProgressBar loadingBar;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash_screen);
+
+        loadingBar = (ProgressBar) findViewById(R.id.loadingbar);
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(i<100){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                        }
+                    });
+                    loadingBar.setProgress(i);
+                    i++;
+                } else {
+                    timer.cancel();
+                    startActivity(new Intent(getApplicationContext(),LoginScreen.class));
+                    finish();
+                    //after splash screen, the signup screen appears next.
+                }
+            }
+        }, 0, 10);
+
+    }
+}
+-----------------------------------------
+activity_splash_screen.xml-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+
+SignUpScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+public class SignUpScreen extends AppCompatActivity {
+
+    TextInputLayout username_var, email_var, password_var;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference reference;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_sign_up_screen);
+
+        username_var = findViewById(R.id.username_text_field_design);
+        email_var = findViewById(R.id.email_text_field_design);
+        password_var = findViewById(R.id.password_text_field_design);
+
+    }
+
+    public void loginbuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),LoginScreen.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void signupbuttonclick(View view) {
+
+        String username_ = username_var.getEditText().getText().toString();
+        String email_ = email_var.getEditText().getText().toString();
+        String password_ = password_var.getEditText().getText().toString();
+
+        if(!username_.isEmpty()) {
+            username_var.setError(null);
+            username_var.setErrorEnabled(false);
+            if(!email_.isEmpty()) {
+                email_var.setError(null);
+                email_var.setErrorEnabled(false);
+                if(!password_.isEmpty()) {
+                    password_var.setError(null);
+                    password_var.setErrorEnabled(false);
+                    //email regex for RFC-5322 Validation
+                    if(email_.matches("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")){
+                        firebaseDatabase = FirebaseDatabase.getInstance();
+                        reference = firebaseDatabase.getReference("datauser");
+
+                        String username_s = username_var.getEditText().getText().toString().trim();
+                        String email_s = email_var.getEditText().getText().toString().trim();
+                        String password_s = password_var.getEditText().getText().toString();
+
+                        //.trim() method (used above) removes trailing and leading whitespace
+
+                        //Making sure username and email are unique (don't exist already)
+                        //first: see if username is taken:
+                        Query check_username = reference.orderByChild("username").equalTo(username_s);
+
+                        check_username.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if(snapshot.exists()){
+                                    username_var.setError("Username already exists");
+
+                                } else {
+                                    username_var.setError(null);
+                                    username_var.setErrorEnabled(false);
+
+                                    //second: see if email is taken:
+                                    Query check_email = reference.orderByChild("email").equalTo(email_s);
+                                    check_email.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            if(snapshot.exists()){
+                                                email_var.setError("Email already exists");
+
+                                            } else {
+                                                email_var.setError(null);
+                                                email_var.setErrorEnabled(false);
+
+                                                StoringData storingData_s = new StoringData(username_s, email_s, password_s, 0);
+
+                                                reference.child(username_s).setValue(storingData_s);
+
+                                                StartScreen.userNameSS = username_s; //sending username information to StartScreen
+                                                StatsScreen.scoreSS = 0; //setting new user's score information to StatsScreen
+
+                                                Toast.makeText(getApplicationContext(), "Account created",Toast.LENGTH_SHORT).show();
+
+                                                Intent intent = new Intent(getApplicationContext(), StartScreen.class);
+                                                startActivity(intent);
+                                                finish();
+
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+                                            //purposely nothing here
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                //purposely nothing here
+                            }
+                        });
+
+
+                    }else {
+                        email_var.setError("Invalid Email");
+                    }
+                }else {
+                    password_var.setError("Please enter a password");
+                }
+            }else {
+                email_var.setError("Please enter an email");
+                if(password_.isEmpty()) password_var.setError("Please enter a password");
+                else{
+                    password_var.setError(null);
+                    password_var.setErrorEnabled(false);
+                }
+            }
+        }else {
+            username_var.setError("Please enter a username");
+            if(email_.isEmpty()) email_var.setError("Please enter an email");
+            else{
+                email_var.setError(null);
+                email_var.setErrorEnabled(false);
+            }
+            if(password_.isEmpty()) password_var.setError("Please enter a password");
+            else{
+                password_var.setError(null);
+                password_var.setErrorEnabled(false);
+            }
+        }
+
+    }
+}
+-----------------------------------------
+activity_sign_up_screen.xml-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+
+LoginScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+public class LoginScreen extends AppCompatActivity {
+
+    Button signupbutton, loginbutton;
+    TextInputLayout username_var, password_var;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_login_screen);
+
+        signupbutton = findViewById(R.id.button_signup);
+        loginbutton = findViewById(R.id.button_done); //corresponds with "Done" button
+        username_var = findViewById(R.id.username_text_field_design);
+        password_var = findViewById(R.id.password_text_field_design);
+
+
+        loginbutton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                String username_ = username_var.getEditText().getText().toString();
+                String password_ = password_var.getEditText().getText().toString();
+
+                if(!username_.isEmpty()) {
+                    username_var.setError(null);
+                    username_var.setErrorEnabled(false);
+                    if(!password_.isEmpty()) {
+                        password_var.setError(null);
+                        password_var.setErrorEnabled(false);
+
+                        final String username_data = username_var.getEditText().getText().toString();
+                        final String password_data = password_var.getEditText().getText().toString();
+
+                        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                        DatabaseReference reference = firebaseDatabase.getReference("datauser");
+
+                        //first seeing if the username exists:
+                        Query check_username = reference.orderByChild("username").equalTo(username_data);
+
+                        check_username.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if(snapshot.exists()){
+                                    username_var.setError(null);
+                                    username_var.setErrorEnabled(false);
+                                    String passwordcheck = snapshot.child(username_data).child("password").getValue(String.class);
+                                    int score = snapshot.child(username_data).child("score").getValue(Integer.class).intValue();
+
+                                    //seeing if the password inputted matches the one in the database:
+                                    if(passwordcheck.equals(password_data)){
+                                        password_var.setError(null);
+                                        password_var.setErrorEnabled(false);
+                                        Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
+
+                                        StartScreen.userNameSS = username_data; //sending username information to StartScreen
+                                        StatsScreen.scoreSS = score; //sending score information to StatsScreen
+
+                                        Intent intent = new Intent(getApplicationContext(), StartScreen.class);
+                                        startActivity(intent);
+                                        finish();
+                                    } else {
+                                        password_var.setError("Incorrect Password");
+                                    }
+                                } else {
+                                    username_var.setError("User does not exist");
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                //purposely nothing here
+                            }
+                        });
+
+
+
+                    }else {
+                        password_var.setError("Please enter password");
+                    }
+                }else {
+                    username_var.setError("Please enter username");
+                    if(password_.isEmpty()) password_var.setError("Please enter a password");
+                    else{
+                        password_var.setError(null);
+                        password_var.setErrorEnabled(false);
+                    }
+                }
+
+            }
+        });
+
+        signupbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(),SignUpScreen.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+    }
+}
+-----------------------------------------
+activity_login_screen.xml-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+
+StartScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+public class StartScreen extends AppCompatActivity {
+
+    Button button;
+    TextView textView;
+    static String userNameSS; //static so it can be set in signup/login classes
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_start_screen);
+
+        button = (Button)findViewById(R.id.button_logout);
+        textView = (TextView)findViewById(R.id.user_id_main_screen);
+
+        //displaying username in TextView at top left
+        textView.setText(userNameSS);
+    }
+
+    public void logoutbuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),LoginScreen.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void howbuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),HowToPlayScreen.class);
+        startActivity(intent);
+    }
+
+    public void chooseopponentclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),ChooseOpponentScreen.class);
+        startActivity(intent);
+    }
+
+    public void statsclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),StatsScreen.class);
+        startActivity(intent);
+    }
+}
+}
+-----------------------------------------
+activity_start_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="20dp"
+    tools:context=".StartScreen">
+
+    <TextView
+        android:id="@+id/user_id_main_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/XXXXX"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        />
+
+    <Button
+        android:id="@+id/button_stats"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="25dp"
+        android:text="@string/stats"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:gravity="center"
+        android:orientation="vertical"
+
+        >
+
+        <ImageView
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_margin="20dp"
+            android:src="@drawable/dreadnought"/>
+
+        <Button
+            android:id="@+id/button_play"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="5dp"
+            android:backgroundTint="@color/black"
+            android:text="@string/play"
+            android:textColor="@color/white"
+            android:textSize="15sp" />
+        <Button
+            android:onClick="howbuttonclick"
+            android:id="@+id/button_howto"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="5dp"
+            android:backgroundTint="@color/black"
+            android:text="@string/how"
+            android:textColor="@color/white"
+            android:textSize="25sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:onClick="logoutbuttonclick"
+        android:id="@+id/button_logout"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="25dp"
+        android:text="@string/logout"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:textSize="15sp" />
+
+</LinearLayout>
+-----------------------------------------
+
+Extra classes:
+StoringData.java-----------------------------------------
+NO CHANGE FROM PRIOR EDITION
+-----------------------------------------
+
+HowToPlayScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+
+public class HowToPlayScreen extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_how_to_play_screen);
+    }
+
+    public void homebuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),StartScreen.class);
+        startActivity(intent);
+        finish();
+    }
+}
+-----------------------------------------
+activity_how_to_play_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="20dp"
+    android:paddingRight="20dp"
+    android:paddingLeft="20dp"
+    tools:context=".HowToPlayScreen">
+
+    <Button
+        android:onClick="homebuttonclick"
+        android:id="@+id/button_home"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:text="@string/home"
+        />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:textSize="60sp"
+                android:text="@string/how_to_play"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:gravity="center"
+                android:fontFamily="sans-serif-condensed"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/you_are_given_two_boards"
+                android:textColor="@color/black"
+                android:layout_marginBottom="10dp"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/stratboard"/>
+
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/attkboard"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="75dp"
+                    android:textColor="@color/black"
+                    android:text="@string/strategy_board"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:text="@string/attack_board"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/first_place_your_fleet"
+                android:textColor="@color/black" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="190dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/fleet"/>
+
+                <ImageView
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:src="@drawable/stratboardwships"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/next_exchange_attacks"
+                android:textColor="@color/black"
+                android:textAlignment="center"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/attackchosen"/>
+
+                <ImageView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:src="@drawable/launchingmissile"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/after_you_launch_an_attack"
+                android:textColor="@color/black"
+                android:textAlignment="center"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/attackhit"/>
+
+                <ImageView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:src="@drawable/attackmiss"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/your_goal"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/conqueror"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
+-----------------------------------------
+
+ChooseOpponentScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+public class ChooseOpponentScreen extends AppCompatActivity {
+
+    ImageView humanChosen, compChosen;
+    Boolean ifChosen = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_choose_opponent_screen);
+
+        humanChosen = findViewById(R.id.picture_human);
+        compChosen = findViewById(R.id.picture_AI);
+
+        humanChosen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                compChosen.setImageResource(R.drawable.artificialintelligencefaded);
+                humanChosen.setImageResource(R.drawable.checkmark);
+                ifChosen = true;
+            }
+        });
+
+        compChosen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                humanChosen.setImageResource(R.drawable.personfaded);
+                compChosen.setImageResource(R.drawable.checkmark);
+                ifChosen = true;
+            }
+        });
+    }
+
+    public void homebuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),StartScreen.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void gobuttonclick(View view) {
+        if(ifChosen) {
+            Intent intent = new Intent(getApplicationContext(),StrategyBoardScreen.class);
+            startActivity(intent);
+            finish();
+        }
+        else
+        {
+            Toast.makeText(getApplicationContext(), "Select an Opponent",Toast.LENGTH_SHORT).show();
+        }
+    }
+}
+-----------------------------------------
+activity_choose_opponent_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ChooseOpponentScreen"
+    android:orientation="vertical"
+    >
+
+    <Button
+        android:onClick="homebuttonclick"
+        android:id="@+id/button_home"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="50dp"
+        android:layout_marginStart="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/home"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"/>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:orientation="vertical"
+        android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/choose_your_opponent"
+        android:textSize="50sp"
+        android:textAlignment="center"
+        android:layout_marginBottom="20dp"
+        android:textColor="@color/black"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/human"
+            android:textSize="30sp"
+            android:layout_marginEnd="100dp"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ai"
+            android:textSize="30sp"
+            android:textColor="@color/black"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/picture_human"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/person"
+            android:layout_marginEnd="10dp"
+            />
+
+        <ImageView
+            android:id="@+id/picture_AI"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/artificialintelligence"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_go"
+        android:onClick="gobuttonclick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="@string/go"
+        android:textSize="30sp"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+-----------------------------------------
+
+StatsScreen.java-----------------------------------------
+package com.ijjy.battleshipgame;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
+public class StatsScreen extends AppCompatActivity {
+
+    TextView statTextfield;
+    static int scoreSS; //static so it can be set from the signup/login classes
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_stats_screen);
+        statTextfield = findViewById(R.id.stat_field);
+
+        statTextfield.setText(Integer.toString(scoreSS)); //setting score information in stat field
+    }
+
+    public void homebuttonclick(View view) {
+        Intent intent = new Intent(getApplicationContext(),StartScreen.class);
+        startActivity(intent);
+        finish();
+    }
+}
+-----------------------------------------
+activity_stats_screen.xml-----------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StatsScreen">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/home"
+            android:onClick="homebuttonclick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/home"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/black"
+            android:layout_marginBottom="100dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/score"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="20dp"/>
+
+            <TextView
+                android:id="@+id/stat_field"
+                android:text="@string/xxxxxx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="30sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+-----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2/16/2024 10:50 am:
+Added "press back again to exit" functionality to home screen.

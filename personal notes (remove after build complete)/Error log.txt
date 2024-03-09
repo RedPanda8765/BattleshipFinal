@@ -1,0 +1,6 @@
+Error 1: after logging in (taking you to the home screen), then logging out (taking you back to Login screen), you can use the phone's back button to go back to the home screen. 
+2/16/2024, 10:30 am.
+
+E1 RESOLVED: added "Press Back again to exit" functionality. 
+2/16/2024, 10:50 am.
+

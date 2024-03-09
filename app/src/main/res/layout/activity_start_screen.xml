@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="20dp"
+    tools:context=".StartScreen">
+
+    <TextView
+        android:id="@+id/user_id_main_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/XXXXX"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        />
+
+    <Button
+        android:id="@+id/button_stats"
+        android:onClick="statsclick"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="25dp"
+        android:text="@string/stats"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:gravity="center"
+        android:orientation="vertical"
+
+        >
+
+        <ImageView
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_margin="20dp"
+            android:src="@drawable/dreadnought"/>
+
+        <Button
+            android:onClick="chooseopponentclick"
+            android:id="@+id/button_play"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="5dp"
+            android:backgroundTint="@color/black"
+            android:text="@string/play"
+            android:textColor="@color/white"
+            android:textSize="15sp" />
+        <Button
+            android:onClick="howbuttonclick"
+            android:id="@+id/button_howto"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="5dp"
+            android:backgroundTint="@color/black"
+            android:text="@string/how"
+            android:textColor="@color/white"
+            android:textSize="25sp" />
+
+
+    </LinearLayout>
+
+    <Button
+        android:onClick="logoutbuttonclick"
+        android:id="@+id/button_logout"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="25dp"
+        android:text="@string/logout"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
+        android:textSize="15sp" />
+
+</LinearLayout>
