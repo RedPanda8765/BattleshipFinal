@@ -95,7 +95,6 @@ public class LoginScreen extends AppCompatActivity {
                         });
 
 
-
                     }else {
                         password_var.setError("Please enter password");
                     }
@@ -120,5 +119,11 @@ public class LoginScreen extends AppCompatActivity {
             }
         });
 
+    }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAffinity();
+        System.exit(0);
     }
 }

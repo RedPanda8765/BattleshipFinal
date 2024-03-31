@@ -22,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 public class StartScreen extends AppCompatActivity {
 
     private long pressedTime;
+    private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     Button button;
     TextView textView;
     static String userNameSS; //static so it can be set from the signup/login classes
@@ -42,9 +43,10 @@ public class StartScreen extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        if (pressedTime + 2000 > System.currentTimeMillis()) {
+        if (pressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
             super.onBackPressed();
-            finish();
+            finishAffinity();
+            System.exit(0);
         } else {
             Toast.makeText(getBaseContext(), "Press back again to exit", Toast.LENGTH_SHORT).show();
         }

@@ -1,7 +1,5 @@
 package com.ijjy.battleshipgame;
 
-import android.app.GameState;
-
 public class StoringData {
 
     String username, email, password;

@@ -90,12 +90,12 @@ public class Ship{
 		this.currentHitCount = 0;
 	}
 
-	public void setDimX(int x)
+	public void setHeight(int x)
 	{
 		this.dimX = x;
 	}
 
-	public void setDimY(int y)
+	public void setWidth(int y)
 	{
 		this.dimY = y;
 	}
