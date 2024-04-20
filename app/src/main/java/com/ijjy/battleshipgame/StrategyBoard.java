@@ -12,110 +12,93 @@ public class StrategyBoard {
 
         //java automatically fills int arrays with 0s upon creation,
         //but just in case, doing it here again.
-        for(int i = 0; i < 10; i++)
-        {
-            for(int j = 0; j < 10; j++)
-                this.board[i][j] = 0;
-        }
+        clearGrid();
+
         //create fleet:
         this.battleFleet = new Fleet();
     }
 
+    public void clearGrid()
+    {
+        for(int i = 0; i < 10; i++)
+        {
+            for(int j = 0; j < 10; j++)
+            {
+                this.board[i][j]=0;
+            }
+        }
+    }
+
+    //places all the ships on a clean board except a select one.
+    public void placeAllShipsExcept(int selected)
+    {
+        clearGrid();
+        for(int i = 0; i < 5; i++) //for every ship
+        {
+            if(i != (selected-1) && this.battleFleet.shipsArray[i].getStatus())
+            {
+                ShipPoint[] points = this.battleFleet.shipsArray[i].getLocation();
+                for(ShipPoint pt : points)
+                    this.board[pt.x][pt.y] = i+1;
+            }
+        }
+    }
+
     public void placeShip(int selectedShip, int xPoint, int yPoint) {
         int k = 0;
-        int width = this.battleFleet.shipsArray[selectedShip - 1].getWidth();
-        int height = this.battleFleet.shipsArray[selectedShip - 1].getHeight();
-        ShipPoint[] points = new ShipPoint[height*width];
-        int maxX = xPoint + height - 1;
-        int maxY = yPoint + width - 1;
+        int wid = this.battleFleet.shipsArray[selectedShip - 1].getWidth();
+        int hgt = this.battleFleet.shipsArray[selectedShip - 1].getHeight();
+        int len = hgt*wid;
+
+        ShipPoint[] points = new ShipPoint[len];
+
+        int maxX = xPoint + hgt;
+        int maxY = yPoint + wid;
 
         if (maxX > 10) {
-            int sub = maxX - 9;
+            int sub = maxX - 10;
             xPoint -= sub;
-        } else if (maxY > 10) {
-            int sub = maxY - 9;
-            yPoint -= sub;
+            maxX = maxX - sub;
         }
-        for (int i = 0; i < this.battleFleet.shipsArray[selectedShip - 1].getHeight(); i++) {
-            for (int j = 0; j < this.battleFleet.shipsArray[selectedShip - 1].getWidth(); j++) {
-                this.board[xPoint + i][yPoint + j] = selectedShip;
-                points[k] = new ShipPoint();
-                points[k].setShipPointLocation(xPoint + i, yPoint + j);
-                //this.battleFleet.shipsArray[selectedShip-1].getLocation()[k].setShipPointLocation(xPoint+i,yPoint+j);
+        if (maxY > 10)
+        {
+            int sub = maxY - 10;
+            yPoint -= sub;
+            maxY = maxY - sub;
+        }
+        for (int i = xPoint; i < maxX; i++) {
+            for (int j = yPoint; j < maxY; j++) {
+                this.board[i][j] = selectedShip;
+                points[k] = new ShipPoint(i,j);
                 k++;
             }
         }
-        this.battleFleet.shipsArray[selectedShip - 1].setLocation(points);
+
+        this.battleFleet.shipsArray[selectedShip - 1].setLocation(points); //<- problem was in here! FIXED
+        this.battleFleet.shipsArray[selectedShip-1].setStatus(true); //active/placed on board
     }
 
-}
-/*
-public class StrategyBoard{
-	private int[][] board;
-	private Fleet battleFleet;
+    public Boolean noOverlapping()
+    {
+        int count = 0;
+        for(int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                if(this.board[i][j] != 0) count++;
+            }
+        }
 
-	public StrategyBoard()
-	{
-		initBoard();
-		createFleet();
-	}
+        if (count == 21) return true; //no overlapping, test passed
+        else return false; //overlapping ships, test failed
+    }
 
-	public void initBoard()
-	{
-		board = new int[10][10]; //creating 10x10 grid
-
-		//java automatically fills int arrays with 0s upon creation,
-		//but just in case, doing it here again.
-		for(int i = 0; i < 10; i++)
-		{
-			for(int j = 0; j < 10; j++)
-				board[i][j] = 0;
-		}
-	}
-
-	public void creatFleet()
-	{
-		this.battleFleet = new Fleet();
-	}
-
-	public Fleet getFleet()
-	{
-		return this.battleFleet;
-	}
-
-	public Boolean spotTaken(int x, int y) //for using before entering Rounds-stage
-	{
-		Boolean result = true;
-		if (this.board[x][y] != 0) result = false;
-		return result;
-	}
-
-	public Boolean withinGrid(int x, int y) //for using before entering Rounds-stage
-	{
-		Boolean result = false;
-		if((x > 0) && (x < 10) && (y > 0) && (y < 10)) result = true;
-		return result;
-	}
-
-	public Boolean checkFleetPositionValidity() //for using before entering Rounds-stage
-	{
-		Boolean result = true; //set to valid as default
-		for(int i = 0; i < 10; i++)
-		{
-			for(int j = 0; j < 10; j++) //for each point on the board in the fleet
-			{
-				if(this.board[i][j] == -1) //if there is a ship intersecting, the value of -1 is placed at that coordinate
-				{
-					result = false;
-					break;
-				}
-			}
-			if(!result) break; //breaking from outer for loop to stop further checking if a value of -1 is found at least once.
-		}
-
-		return result;
-	}
-
+    public Boolean allPlaced()
+    {
+        for(int i = 0; i < 5; i++)
+        {
+            if(!this.battleFleet.shipsArray[i].getStatus()) return false; //at least one ship isn't placed
+        }
+        return true; //all ships are placed
+    }
 } //end of StrategyBoard class
-
- */

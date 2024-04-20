@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -28,12 +29,12 @@ public class LoginScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login_screen);
+        getWindow().getDecorView().setBackgroundColor(Color.WHITE);
 
         signupbutton = findViewById(R.id.button_signup);
         loginbutton = findViewById(R.id.button_done); //corresponds with "Done" button
         username_var = findViewById(R.id.username_text_field_design);
         password_var = findViewById(R.id.password_text_field_design);
-
 
         loginbutton.setOnClickListener(new View.OnClickListener() {
 

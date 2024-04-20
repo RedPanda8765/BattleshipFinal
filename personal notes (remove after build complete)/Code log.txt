@@ -1804,14 +1804,14 @@ activity_how_to_play_screen.xml-----------------------------------------
 </LinearLayout>
 -----------------------------------------
 
-ChooseOpponentScreen.java-----------------------------------------
+StartScreen.java-----------------------------------------
 package com.ijjy.battleshipgame;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class ChooseOpponentScreen extends AppCompatActivity {
+public class StartScreen extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1827,7 +1827,7 @@ activity_choose_opponent_screen.xml-----------------------------------------
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChooseOpponentScreen">
+    tools:context=".StartScreen">
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 -----------------------------------------
@@ -2293,7 +2293,7 @@ public class StartScreen extends AppCompatActivity {
     }
 
     public void chooseopponentclick(View view) {
-        Intent intent = new Intent(getApplicationContext(),ChooseOpponentScreen.class);
+        Intent intent = new Intent(getApplicationContext(),StartScreen.class);
         startActivity(intent);
     }
 
@@ -2610,7 +2610,7 @@ activity_how_to_play_screen.xml-----------------------------------------
 </LinearLayout>
 -----------------------------------------
 
-ChooseOpponentScreen.java-----------------------------------------
+StartScreen.java-----------------------------------------
 package com.ijjy.battleshipgame;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -2621,7 +2621,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-public class ChooseOpponentScreen extends AppCompatActivity {
+public class StartScreen extends AppCompatActivity {
 
     ImageView humanChosen, compChosen;
     Boolean ifChosen = false;
@@ -2679,7 +2679,7 @@ activity_choose_opponent_screen.xml-----------------------------------------
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChooseOpponentScreen"
+    tools:context=".StartScreen"
     android:orientation="vertical"
     >
 

@@ -1,21 +1,19 @@
 package com.ijjy.battleshipgame;
-
 public class Fleet{
-    public Ship[] shipsArray; //making it public for easier access
-    public final String[] shipNames = {"Aircraft Carrier","Cruiser","Submarine","Corvette","Destroyer"};
-    public final int[] shipDimens = {4,2,3,1,3,1,2,1,5,1};
-    public Boolean fleetStatus;
+    public Ship[] shipsArray = new Ship[5]; //making it public for easier access
+    public String[] shipNames = {"Aircraft Carrier","Cruiser","Submarine","Corvette","Destroyer"};
+    public int[] shipDimens = {4,2,3,1,3,1,2,1,5,1};
+    public Boolean fleetStatus; //true = active, false = inactive or all ships sunk
 
     public Fleet()
     {
-        int j = 0;
-        for(int i = 0; i < 5; i++) //for the 5 ships in the fleet
+        int i = 0;
+        for(int j = 0; j < 5; j++) //for the 5 ships in the fleet
         {
-            shipsArray[i] = new Ship(shipDimens[i],shipDimens[i++],shipNames[j]);
-            i+=2;
-            j++;
+            shipsArray[j] = new Ship(shipDimens[i],shipDimens[++i],shipNames[j]);
+            i++;
         }
-        this.fleetStatus = true; //initially active
+        this.fleetStatus = false; //initially inactive
     }
 
     public void updateStatus()

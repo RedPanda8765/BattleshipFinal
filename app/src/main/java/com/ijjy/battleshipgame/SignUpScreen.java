@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -28,6 +29,7 @@ public class SignUpScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_sign_up_screen);
+        getWindow().getDecorView().setBackgroundColor(Color.WHITE);
 
         username_var = findViewById(R.id.username_text_field_design);
         email_var = findViewById(R.id.email_text_field_design);

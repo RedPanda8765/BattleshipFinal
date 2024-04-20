@@ -15,6 +15,15 @@
         android:theme="@style/Theme.BattleshipGame"
         tools:targetApi="31">
         <activity
+            android:name=".GameOverScreen"
+            android:exported="false" />
+        <activity
+            android:name=".GameScreen2"
+            android:exported="false" />
+        <activity
+            android:name=".GameScreen"
+            android:exported="false" />
+        <activity
             android:name=".StrategyBoardScreen"
             android:exported="false" />
         <activity
@@ -24,7 +33,7 @@
             android:name=".StatsScreen"
             android:exported="false" />
         <activity
-            android:name=".ChooseOpponentScreen"
+            android:name=".StartScreen"
             android:exported="false" />
         <activity
             android:name=".SignUpScreen"

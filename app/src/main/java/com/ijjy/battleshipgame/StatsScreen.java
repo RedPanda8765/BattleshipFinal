@@ -3,6 +3,7 @@ package com.ijjy.battleshipgame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -18,8 +19,9 @@ public class StatsScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_stats_screen);
-        statTextfield = findViewById(R.id.stat_field);
+        getWindow().getDecorView().setBackgroundColor(Color.WHITE);
 
+        statTextfield = findViewById(R.id.stat_field);
         statTextfield.setText(Integer.toString(scoreSS)); //setting score information in stat field
     }
 

@@ -55,12 +55,15 @@
                     app:boxBackgroundColor="@color/white"
                     android:id="@+id/username_text_field_design"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:hint="@string/Username">
+                    android:hint="@string/Username"
+                    android:textColorHint="@color/common_google_signin_btn_text_light">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text"/>
+                        android:inputType="text"
+                        android:background="@drawable/textview_border"
+                        android:textColor="@color/black"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -70,12 +73,15 @@
                     app:boxBackgroundColor="@color/white"
                     android:id="@+id/email_text_field_design"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:hint="@string/Email">
+                    android:hint="@string/Email"
+                    android:textColorHint="@color/common_google_signin_btn_text_light">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textEmailAddress"/>
+                        android:inputType="textEmailAddress"
+                        android:background="@drawable/textview_border"
+                        android:textColor="@color/black"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -86,12 +92,16 @@
                     android:id="@+id/password_text_field_design"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     app:passwordToggleEnabled="true"
-                    android:hint="@string/Password">
+                    app:passwordToggleTint= "@color/black"
+                    android:hint="@string/Password"
+                    android:textColorHint="@color/common_google_signin_btn_text_light">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPassword"/>
+                        android:inputType="textPassword"
+                        android:background="@drawable/textview_border"
+                        android:textColor="@color/black"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -104,6 +114,7 @@
                 android:layout_height="48dp"
                 android:backgroundTint="#000000"
                 android:text="@string/Done"
+                android:textColor="@color/white"
                 android:layout_gravity="center_horizontal"
                 android:elevation="5dp"/>
 

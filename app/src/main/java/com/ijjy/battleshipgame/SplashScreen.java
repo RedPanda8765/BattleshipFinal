@@ -3,6 +3,7 @@ package com.ijjy.battleshipgame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.WindowManager;
@@ -22,6 +23,7 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash_screen);
+        getWindow().getDecorView().setBackgroundColor(Color.WHITE);
 
         loadingBar = (ProgressBar) findViewById(R.id.loadingbar);
         timer = new Timer();

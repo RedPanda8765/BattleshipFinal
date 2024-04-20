@@ -7,6 +7,15 @@
     tools:context=".StrategyBoardScreen"
     android:orientation="vertical">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -25,6 +34,7 @@
             />
 
         <Button
+            android:onClick="startmatchbuttonclick"
             android:id="@+id/button_start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -47,9 +57,10 @@
         android:layout_marginTop="10dp"/>
 
     <TextView
+        android:id="@+id/message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tap to Place Your Fleet"
+        android:text="1. Select a Ship\n2. Tap to Place on Grid"
         android:textColor="@color/black"
         android:textSize="25sp"
         android:gravity="center"
@@ -487,6 +498,7 @@
             android:id="@+id/gridspot_6.4"
             android:layout_width="35dp"
             android:layout_height="35dp"
+            android:onClick="gridPress"
             android:src="@drawable/square"/>
         <ImageView
             android:id="@+id/gridspot_6.5"
@@ -729,29 +741,33 @@
             android:layout_width="60dp"
             android:layout_height="150dp"
             android:src="@drawable/ship_one_v"
+            android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"/>
         <ImageView
             android:id="@+id/ship2_id"
             android:layout_width="30dp"
-            android:layout_height="150dp"
+            android:layout_height="110dp"
             android:src="@drawable/ship_two_v"
+            android:layout_marginTop="25dp"
             android:layout_marginRight="10dp"/>
         <ImageView
             android:id="@+id/ship3_id"
             android:layout_width="30dp"
-            android:layout_height="150dp"
+            android:layout_height="110dp"
             android:src="@drawable/ship_three_v"
+            android:layout_marginTop="25dp"
             android:layout_marginRight="10dp"/>
         <ImageView
             android:id="@+id/ship4_id"
             android:layout_width="30dp"
-            android:layout_height="150dp"
+            android:layout_height="90dp"
             android:src="@drawable/ship_four_v"
+            android:layout_marginTop="35dp"
             android:layout_marginRight="10dp"/>
         <ImageView
             android:id="@+id/ship5_id"
             android:layout_width="30dp"
-            android:layout_height="200dp"
+            android:layout_height="190dp"
             android:src="@drawable/ship_five_v"/>
 
         <LinearLayout
@@ -786,5 +802,8 @@
 
         </LinearLayout>
     </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
